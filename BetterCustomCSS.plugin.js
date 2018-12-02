@@ -19,12 +19,15 @@ BetterCustomCSS.prototype.start = function () {
 	let settings = this.loadSettings();
 	let fs = require('fs');
 	let fileFolderToLoad = "";
-	for (let j = 0; j < settings.directory.length; j++) {
-		if (settings.directory[j] != "") {
-			fileFolderToLoad += settings.directory[j];
+	for (let i = 0; i < settings.directory.length; i++) {
+		if (settings.directory[i] != "") {
+			fileFolderToLoad += settings.directory[i];
 		}
 	}
 	fileFolderToLoad = fileFolderToLoad.split(',');
+	for (let k = 0; k < fileFolderToLoad.length; k++) {
+		fileFolderToLoad[k] = fileFolderToLoad[k].replace(/(\r\n\t|\n|\r\t)/gm, "");
+	}
 	let elemOld = document.querySelectorAll('.bettercustomcss-style');
 	elemOld.forEach(file => {
 		file.remove();
@@ -96,6 +99,9 @@ BetterCustomCSS.prototype.loadAndAppendRecursively = function (folder, curPath, 
 		}
 	}
 	exceptions = exceptions.split(',');
+	for (let j = 0; j < exceptions.length; j++) {
+		exceptions[j] = exceptions[j].replace(/(\r\n\t|\n|\r\t)/gm, "");
+	}
 	fs.readdirSync(folder).forEach(file => {
 		let hit = false;
 		if (!fs.lstatSync(folder + '\\' + file).isFile()) {
