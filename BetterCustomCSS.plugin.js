@@ -4,7 +4,6 @@
 'use strict';
 var BetterCustomCSS = function () { };
 BetterCustomCSS.prototype.getAuthor = function () {
-	let bdaFooter = document.getElementById('')
 	return "kosshi - Enhanced by: GhostlyDilemma @ Customa";
 };
 BetterCustomCSS.prototype.getName = function () {
@@ -58,11 +57,6 @@ BetterCustomCSS.prototype.appendFile = function (fileFolderToLoad) {
 		this.loadAndAppendRecursively(fileFolderToLoad, path, fileFolderToLoad);
 	} else {
 		if (this.accessSync(fileFolderToLoad)) {
-			let elem = document.createElement("style");
-			let id = fileFolderToLoad.split("\\");
-			elem.classList = 'bettercustomcss-style';
-			elem.id = `bccss-file-${id[id.length - 1].split(".")[0]}`;
-
 			fs.readFile(fileFolderToLoad, "utf8", (err, file) => {
 				if (err) {
 					BdApi.getCore().alert(
@@ -72,9 +66,21 @@ BetterCustomCSS.prototype.appendFile = function (fileFolderToLoad) {
 					this.stop();
 					return;
 				}
-				elem.innerHTML = file;
+				let id = fileFolderToLoad.split("\\");
+				let elemOld = document.getElementById(`bccss-file-${id[id.length - 1].split(".")[0]}`);
+				if (elemOld != null) {
+					elemOld.innerHTML = file;
+				} else {
+					let elem = document.createElement("style");
+					elem.classList = 'bettercustomcss-style';
+					elem.id = `bccss-file-${id[id.length - 1].split(".")[0]}`;
+
+
+					elem.innerHTML = file;
+					document.head.appendChild(elem);
+				}
 			});
-			document.head.appendChild(elem);
+
 		}
 	}
 };
@@ -109,12 +115,12 @@ BetterCustomCSS.prototype.loadAndAppendRecursively = function (folder, curPath, 
 		}
 	});
 };
-BetterCustomCSS.prototype.loadFolderFile = function (exceptions, folder, file, topTierElem) {
+BetterCustomCSS.prototype.loadFolderFile = function (exceptions, folder, fileName, topTierElem) {
 	let fs = require('fs');
 	let hit = false;
-	if (this.accessSync(folder + '\\' + file)) {
+	if (this.accessSync(folder + '\\' + fileName)) {
 		for (let i = 0; i < exceptions.length; i++) {
-			if (folder + '\\' + file == exceptions[i] || file == exceptions[i]) {
+			if (folder + '\\' + fileName == exceptions[i] || fileName == exceptions[i]) {
 				hit = true;
 			}
 		}
@@ -122,23 +128,26 @@ BetterCustomCSS.prototype.loadFolderFile = function (exceptions, folder, file, t
 			let elem = document.createElement("style");
 			let folderA = folder.split("\\");
 			let folderB = topTierElem.split("\\");
-			let fileA = file.split(".");
+			let fileA = fileName.split(".");
 			let folderString = "";
-			for (let i = folderA.indexOf(folderB[folderB.length - 1]); i < folderA.length; i++) {
-				folderString += '-' + folderA[i];
-			}
-			elem.classList = 'bettercustomcss-style';
-			elem.id = `bccss-folder${folderString}-file-${fileA[0]}`;
-			fs.readFile(folder + '\\' + file, "utf8", (err, file) => {
+			fs.readFile(folder + '\\' + fileName, "utf8", (err, file) => {
 				if (!err) {
-					elem.innerHTML = file;
+					for (let i = folderA.indexOf(folderB[folderB.length - 1]); i < folderA.length; i++) {
+						folderString += '-' + folderA[i];
+					}
+					let elemOld = document.getElementById(`bccss-folder${folderString}-file-${fileA[0]}`);
+					if (elemOld != null) {
+						elemOld.innerHTML = file;
+					} else {
+						elem.classList = 'bettercustomcss-style';
+						elem.id = `bccss-folder${folderString}-file-${fileA[0]}`;
+						elem.innerHTML = file;
+						document.head.appendChild(elem);
+						this.watcher = fs.watch(folder + '\\' + fileName, (event, filename) => {
+							this.loadFolderFile(exceptions, folder, fileName, topTierElem);
+						});
+					}
 				}
-			});
-			console.log(folder + '\\' + file);
-			console.log(this)
-			document.head.appendChild(elem);
-			this.watcher = fs.watch(folder + '\\' + file, (event, filename) => {
-				this.appendFile(folder + '\\' + file);
 			});
 		}
 	}
@@ -149,7 +158,6 @@ BetterCustomCSS.prototype.unload = function () { };
 BetterCustomCSS.prototype.onMessage = function () { };
 BetterCustomCSS.prototype.onSwitch = function () { };
 BetterCustomCSS.prototype.accessSync = function (dir) {
-	console.log(dir);
 	let fs = require('fs');
 	try {
 		fs.accessSync(dir, fs.F_OK);
@@ -214,7 +222,6 @@ BetterCustomCSS.prototype.import = function (string) {
 
 BetterCustomCSS.prototype.getSettingsPanel = function () {
 	let settings = this.loadSettings();
-	console.log(settings.directory);
 
 	let html = `<h1 style='font-size: 24px; margin: 10px 0 0 0; font-weight: bold'>Settings Panel</h1><br>
 	<h2 style='font-size: 18px!important; 
