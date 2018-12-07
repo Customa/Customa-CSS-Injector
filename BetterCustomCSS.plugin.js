@@ -16,6 +16,9 @@ BetterCustomCSS.prototype.getVersion = function () {
 	return "1.0.0";
 };
 BetterCustomCSS.prototype.start = function () {
+	let customcss = document.getElementById('customcss');
+	let customcssCode = customcss.innerHTML;
+	customcss.remove();
 	let settings = this.loadSettings();
 	let fs = require('fs');
 	let fileFolderToLoad = "";
@@ -34,15 +37,20 @@ BetterCustomCSS.prototype.start = function () {
 	});
 
 	for (let j = 0; j < fileFolderToLoad.length; j++) {
-		this.appendFile(fileFolderToLoad[j]);
-		let selectionIsFile = fs.lstatSync(fileFolderToLoad[j]).isFile();
+		let currentFile = fileFolderToLoad[j];
+		this.appendFile(currentFile);
+		let selectionIsFile = fs.lstatSync(currentFile).isFile();
 
 		if (selectionIsFile) {
-			this.watcher = fs.watch(fileFolderToLoad[j], (event, filename) => {
-				this.appendFile(fileFolderToLoad[j]);
+			this.watcher = fs.watch(currentFile, (event, filename) => {
+				this.appendFile(currentFile);
 			});
 		}
 	}
+	let newCustomCSS = document.createElement("style");
+	newCustomCSS.id = 'customcss';
+	newCustomCSS.innerHTML = customcssCode;
+	document.body.appendChild(newCustomCSS);
 };
 BetterCustomCSS.prototype.stop = function () {
 	if (document.getElementById('bettercustomcss')) {
@@ -99,9 +107,6 @@ BetterCustomCSS.prototype.loadAndAppendRecursively = function (folder, curPath, 
 		}
 	}
 	exceptions = exceptions.split(',');
-	for (let j = 0; j < exceptions.length; j++) {
-		exceptions[j] = exceptions[j].replace(/(\r\n\t|\n|\r\t)/gm, "");
-	}
 	fs.readdirSync(folder).forEach(file => {
 		let hit = false;
 		if (!fs.lstatSync(folder + '\\' + file).isFile()) {
