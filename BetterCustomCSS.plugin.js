@@ -13,12 +13,9 @@ BetterCustomCSS.prototype.getDescription = function () {
 	return `Let's you edit CSS files in your favorite Text editor and reloads them whenever you save. \n Now supports: Multiple Files, (Multiple Folders) -> Recursive Loading, Exceptions for Folders and Files`;
 };
 BetterCustomCSS.prototype.getVersion = function () {
-	return "1.0.0";
+	return "1.0.2";
 };
 BetterCustomCSS.prototype.start = function () {
-	let customcss = document.getElementById('customcss');
-	let customcssCode = customcss.innerHTML;
-	customcss.remove();
 	let settings = this.loadSettings();
 	let fs = require('fs');
 	let fileFolderToLoad = "";
@@ -47,10 +44,17 @@ BetterCustomCSS.prototype.start = function () {
 			});
 		}
 	}
-	let newCustomCSS = document.createElement("style");
-	newCustomCSS.id = 'customcss';
-	newCustomCSS.innerHTML = customcssCode;
-	document.body.appendChild(newCustomCSS);
+
+	setTimeout(() => {
+		let customcss = document.getElementById('customcss');
+		console.log("fuck");
+		customcss.remove();
+
+		let newCustomCSS = document.createElement("style");
+		newCustomCSS.id = 'customcss';
+		newCustomCSS.innerHTML = customcss.innerHTML;
+		document.body.appendChild(newCustomCSS);
+	}, 2000);
 };
 BetterCustomCSS.prototype.stop = function () {
 	if (document.getElementById('bettercustomcss')) {
