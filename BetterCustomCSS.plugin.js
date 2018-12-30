@@ -47,7 +47,6 @@ BetterCustomCSS.prototype.start = function () {
 
 	setTimeout(() => {
 		let customcss = document.getElementById('customcss');
-		console.log("fuck");
 		customcss.remove();
 
 		let newCustomCSS = document.createElement("style");
